@@ -11,7 +11,7 @@ const resume = await getEntry('resume', 'zh');
 const { data } = resume;
 ---
 
-<ResumeLayout>
+<ResumeLayout title={data.basics.name + " - " + data.basics.title}>
   <div class="max-w-4xl mx-auto">
     <article class="space-y-8 print:space-y-6">
       <!-- 个人信息 -->

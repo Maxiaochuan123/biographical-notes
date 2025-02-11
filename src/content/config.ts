@@ -61,7 +61,17 @@ const educationSchema = z.object({
   courses: z.array(z.string()).optional()
 });
 
-// 定义简历集合
+// 博客文章模式
+const blogSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  pubDate: z.coerce.date(),
+  updatedDate: z.coerce.date().optional(),
+  heroImage: z.string().optional(),
+  draft: z.boolean().optional().default(false)
+});
+
+// 定义集合
 export const collections = {
   'resume': defineCollection({
     schema: z.object({
@@ -79,5 +89,8 @@ export const collections = {
         keywords: z.array(z.string())
       })).optional()
     })
+  }),
+  'blog': defineCollection({
+    schema: blogSchema
   })
 }; 
