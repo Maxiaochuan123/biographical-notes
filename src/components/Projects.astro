@@ -1,0 +1,65 @@
+---
+interface Props {
+  projects: Array<{
+    name: string;
+    description: string;
+    startDate: Date;
+    endDate?: Date;
+    role: string;
+    teamSize?: number;
+    highlights: string[];
+    techStack: string[];
+  }>;
+}
+
+const { projects } = Astro.props;
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'numeric' });
+}
+---
+
+<section class="mb-8 print:mb-6">
+  <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">项目经验</h2>
+  
+  <div class="space-y-6">
+    {projects.map((project) => (
+      <div class="print:break-inside-avoid">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-1">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">
+              {project.name}
+              {project.teamSize && (
+                <span class="text-sm font-normal text-gray-500 dark:text-gray-500">
+                  （团队规模：{project.teamSize}人）
+                </span>
+              )}
+            </h3>
+            <div class="text-gray-600 dark:text-gray-400">
+              {project.role}
+            </div>
+          </div>
+          <div class="text-gray-500 dark:text-gray-500 text-sm">
+            {formatDate(project.startDate)} - {project.endDate ? formatDate(project.endDate) : '至今'}
+          </div>
+        </div>
+        
+        <p class="mt-2 text-gray-700 dark:text-gray-300">{project.description}</p>
+        
+        <ul class="mt-2 space-y-1 text-gray-600 dark:text-gray-400 list-disc list-inside">
+          {project.highlights.map((highlight) => (
+            <li>{highlight}</li>
+          ))}
+        </ul>
+        
+        <div class="mt-3 flex flex-wrap gap-2">
+          {project.techStack.map((tech) => (
+            <span class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full">
+              {tech}
+            </span>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</section> 

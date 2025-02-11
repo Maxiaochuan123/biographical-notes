@@ -1,0 +1,85 @@
+---
+import ResumeLayout from '../layouts/ResumeLayout.astro';
+import { getEntry } from 'astro:content';
+import Header from '../components/Header.astro';
+import Experience from '../components/Experience.astro';
+import Projects from '../components/Projects.astro';
+import Skills from '../components/Skills.astro';
+import Education from '../components/Education.astro';
+
+const resume = await getEntry('resume', 'zh');
+const { data } = resume;
+---
+
+<ResumeLayout>
+  <div class="max-w-4xl mx-auto">
+    <article class="space-y-8 print:space-y-6">
+      <!-- 个人信息 -->
+      <section class="card">
+        <Header basics={data.basics} />
+      </section>
+
+      <!-- 教育经历 -->
+      <section class="card">
+        <Education education={data.education} />
+      </section>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 print:grid-cols-3">
+        <!-- 左侧主要内容 -->
+        <div class="lg:col-span-2 space-y-8 print:col-span-2">
+          <!-- 工作经验 -->
+          <section class="card">
+            <Experience work={data.work} />
+          </section>
+
+          <!-- 项目经验 -->
+          <section class="card">
+            <Projects projects={data.projects} />
+          </section>
+        </div>
+
+        <!-- 右侧边栏 -->
+        <div class="space-y-8">
+          <!-- 技能专长 -->
+          <section class="card">
+            <Skills skills={data.skills} />
+          </section>
+
+          <!-- 语言能力 -->
+          <section class="card">
+            <h2 class="section-title">语言能力</h2>
+            <ul class="space-y-2">
+              {data.languages.map((lang) => (
+                <li class="flex justify-between items-center">
+                  <span class="text-gray-700 dark:text-gray-300">{lang.language}</span>
+                  <span class="text-gray-600 dark:text-gray-400">{lang.fluency}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <!-- 兴趣爱好 -->
+          {data.interests && (
+            <section class="card">
+              <h2 class="section-title">兴趣爱好</h2>
+              <ul class="space-y-4">
+                {data.interests.map((interest) => (
+                  <li>
+                    <h3 class="font-semibold text-gray-700 dark:text-gray-300">{interest.name}</h3>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                      {interest.keywords.map((keyword) => (
+                        <span class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 rounded-full">
+                          {keyword}
+                        </span>
+                      ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+      </div>
+    </article>
+  </div>
+</ResumeLayout>

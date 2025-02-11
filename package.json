@@ -1,0 +1,62 @@
+{
+  "name": "resume-portfolio",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
+    "type-check": "astro check && tsc --noEmit"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^2.1.1",
+    "@astrojs/rss": "^4.0.1",
+    "@astrojs/sitemap": "^3.0.4",
+    "@astrojs/tailwind": "^5.1.0",
+    "@astrojs/react": "^3.0.10",
+    "astro": "^4.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.4.1",
+    "html2pdf.js": "^0.10.1",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "sharp": "^0.33.2",
+    "@astrojs/check": "^0.5.4",
+    "chart.js": "^4.4.1",
+    "typescript": "^5.3.3",
+    "@astrojs/prefetch": "^0.4.1",
+    "motion": "^10.17.0",
+    "swiper": "^11.0.6",
+    "web-vitals": "^3.5.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "prettier-plugin-astro": "^0.13.0",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "@typescript-eslint/parser": "^7.0.1",
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-astro": "^0.31.4",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "@tailwindcss/typography": "^0.5.10",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "cssnano": "^6.0.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,md,mdx,astro}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  }
+}

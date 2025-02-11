@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    @apply min-h-screen;
+  }
+}
+
+@layer components {
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  .resume-section {
+    @apply mb-8 print:mb-6 animate-fade-in;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 animate-slide-in;
+  }
+}
+
+/* 打印样式优化 */
+@media print {
+  @page {
+    margin: 1cm;
+    size: A4;
+  }
+
+  html {
+    font-size: 12px;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+}
