@@ -5,10 +5,11 @@
 @layer base {
   html {
     @apply antialiased;
+    font-size: 15px;
   }
 
   body {
-    @apply min-h-screen;
+    @apply min-h-screen leading-relaxed;
     background: 
       radial-gradient(circle at 50% 0%, rgba(255, 0, 0, 0.1), transparent 40%),
       radial-gradient(circle at 0% 50%, rgba(0, 255, 0, 0.1), transparent 40%),
@@ -29,19 +30,19 @@
 
 @layer components {
   .container {
-    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl;
   }
 
   .resume-section {
-    @apply mb-8 print:mb-6 animate-fade-in;
+    @apply mb-10 print:mb-8 animate-fade-in;
   }
 
   .section-title {
-    @apply text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200;
+    @apply text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200 pb-2 border-b border-gray-200 dark:border-gray-700;
   }
 
   .card {
-    @apply bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-lg p-6;
+    @apply bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-xl p-8 mb-6;
     box-shadow: 
       0 4px 6px -1px rgba(0, 0, 0, 0.1),
       0 2px 4px -1px rgba(0, 0, 0, 0.06),
@@ -49,36 +50,49 @@
     transition: all 0.2s ease;
   }
 
-  /* .card:hover {
-    @apply bg-white/70 dark:bg-gray-800/70;
-    transform: translateY(-2px);
-    box-shadow: 
-      0 8px 12px -1px rgba(0, 0, 0, 0.15),
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-  } */
+  .project-item {
+    @apply border-b border-gray-100 dark:border-gray-700 last:border-0 pb-6 last:pb-0;
+  }
+
+  .skill-tag {
+    @apply px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300;
+  }
+
+  .text-secondary {
+    @apply text-gray-600 dark:text-gray-400;
+  }
+
+  .text-tertiary {
+    @apply text-gray-500 dark:text-gray-500;
+  }
 }
 
 /* 打印样式优化 */
 @media print {
   @page {
-    margin: 1cm;
+    margin: 1.5cm;
     size: A4;
   }
 
   html {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   body {
     background: none !important;
+    line-height: 1.6;
   }
 
   .card {
+    @apply p-6 mb-4;
     background: white !important;
     backdrop-filter: none !important;
     box-shadow: none !important;
     transform: none !important;
+  }
+
+  .project-item {
+    @apply pb-4;
   }
 
   .no-print {

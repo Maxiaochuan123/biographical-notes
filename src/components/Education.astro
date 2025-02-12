@@ -18,33 +18,33 @@ function formatDate(date: Date) {
 }
 ---
 
-<section class="mb-8 print:mb-6 print:break-inside-avoid">
-  <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">教育经历</h2>
+<section class="resume-section">
+  <h2 class="section-title">教育经历</h2>
   
-  <div class="space-y-4">
+  <div class="space-y-6">
     {education.map((edu) => (
-      <div>
-        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-1">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">
+      <div class="project-item">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-2">
+          <div class="space-y-1">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
               {edu.institution}
             </h3>
-            <div class="text-gray-600 dark:text-gray-400">
+            <div class="text-secondary">
               {edu.area} · {edu.studyType}
               {edu.score && <span class="ml-2">· {edu.score}</span>}
             </div>
           </div>
-          <div class="text-gray-500 dark:text-gray-500 text-sm">
+          <div class="text-tertiary text-sm whitespace-nowrap">
             {formatDate(edu.startDate)} - {edu.endDate ? formatDate(edu.endDate) : '至今'}
           </div>
         </div>
         
         {edu.courses && (
-          <div class="mt-2">
-            <div class="text-sm text-gray-600 dark:text-gray-400">主修课程：</div>
-            <div class="mt-1 flex flex-wrap gap-2">
+          <div class="mt-4">
+            <div class="text-sm text-secondary mb-2">主修课程：</div>
+            <div class="flex flex-wrap gap-2">
               {edu.courses.map((course) => (
-                <span class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full">
+                <span class="skill-tag">
                   {course}
                 </span>
               ))}
