@@ -138,18 +138,18 @@ const {
 
       // 初始化主题
       const initTheme = () => {
-        const isDark = localStorage.theme === 'dark' || 
-          (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-        if (isDark) {
+        // 如果本地存储中有主题设置，使用存储的设置
+        if ('theme' in localStorage) {
+          const isDark = localStorage.theme === 'dark';
+          document.documentElement.classList.toggle('dark', isDark);
+          if (themeCircle) {
+            themeCircle.style.clipPath = isDark ? 'circle(150% at 50% 50%)' : 'circle(0% at 50% 50%)';
+          }
+        } else {
+          // 如果没有存储的设置，默认使用暗色主题
           document.documentElement.classList.add('dark');
           if (themeCircle) {
             themeCircle.style.clipPath = 'circle(150% at 50% 50%)';
-          }
-        } else {
-          document.documentElement.classList.remove('dark');
-          if (themeCircle) {
-            themeCircle.style.clipPath = 'circle(0% at 50% 50%)';
           }
         }
       };
