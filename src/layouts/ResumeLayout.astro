@@ -30,16 +30,25 @@ const {
   </head>
   <body class="min-h-screen">
     <!-- 背景层 -->
-    <div class="fixed inset-0 w-full min-h-screen -z-10">
+    <div class="fixed inset-0 w-full min-h-screen -z-10 overflow-hidden">
       <!-- 亮色背景 -->
-      <div class="absolute inset-0 w-full min-h-full bg-gray-50"></div>
+      <div class="absolute inset-0 w-full min-h-full bg-gradient-to-br from-white via-gray-50 to-gray-100 transition-opacity duration-700">
+        <div class="absolute inset-0 w-full h-full">
+          <div class="absolute inset-0 bg-gradient-light"></div>
+        </div>
+      </div>
       <!-- 暗色背景和动画 -->
-      <div id="theme-circle" class="absolute inset-0 w-full min-h-full bg-gray-900 transition-[clip-path] duration-700 ease-in-out dark:clip-path-circle-full"></div>
+      <div id="theme-circle" class="absolute inset-0 w-full min-h-full transition-[clip-path] duration-700 ease-in-out" style="clip-path: circle(0% at 50% 50%)">
+        <div class="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-900 to-gray-800"></div>
+        <div class="absolute inset-0 w-full h-full">
+          <div class="absolute inset-0 bg-gradient-dark"></div>
+        </div>
+      </div>
     </div>
 
-    <div class="relative min-h-screen">
+    <div class="relative min-h-screen bg-transparent">
       <!-- 顶部导航栏 -->
-      <nav id="header" class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 no-print transition-transform duration-300">
+      <nav id="header" class="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-700 no-print transition-transform duration-300 transform-gpu">
         <div class="container mx-auto px-4 h-12 flex items-center justify-between">
           <div class="flex items-center space-x-4">
             <button class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -70,7 +79,7 @@ const {
       </nav>
 
       <!-- 回到顶部按钮 -->
-      <button id="back-to-top" class="fixed bottom-6 right-6 p-2 bg-gray-800/80 dark:bg-gray-700/80 text-white rounded-full shadow-lg backdrop-blur-sm opacity-0 invisible transition-all duration-300 hover:bg-gray-700 dark:hover:bg-gray-600 z-50">
+      <button id="back-to-top" class="fixed bottom-6 right-6 p-2 bg-gray-800/90 dark:bg-gray-700/90 text-white rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-gray-700 dark:hover:bg-gray-600 z-50 transform-gpu">
         <span class="sr-only">回到顶部</span>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -91,8 +100,39 @@ const {
 
       if (themeToggle && themeCircle) {
         themeToggle.addEventListener('click', () => {
+          if (isAnimating) return;
+          isAnimating = true;
+
+          // 获取按钮位置
+          const rect = themeToggle.getBoundingClientRect();
+          const buttonCenterX = rect.left + rect.width / 2;
+          const buttonCenterY = rect.top + rect.height / 2;
+
+          // 计算相对位置（相对于窗口）
+          const x = (buttonCenterX / window.innerWidth) * 100;
+          const y = (buttonCenterY / window.innerHeight) * 100;
+
+          // 设置动画起点
+          themeCircle.style.clipPath = `circle(0% at ${x}% ${y}%)`;
+
+          // 触发重排
+          themeCircle.offsetHeight;
+
+          // 切换主题类
           const isDark = document.documentElement.classList.toggle('dark');
           localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+          // 开始动画
+          if (isDark) {
+            themeCircle.style.clipPath = `circle(150% at ${x}% ${y}%)`;
+          } else {
+            themeCircle.style.clipPath = `circle(0% at ${x}% ${y}%)`;
+          }
+
+          // 动画结束后重置状态
+          setTimeout(() => {
+            isAnimating = false;
+          }, 700);
         });
       }
 
@@ -120,59 +160,43 @@ const {
       const header = document.getElementById('header');
       const backToTop = document.getElementById('back-to-top');
       let lastScrollTop = 0;
-      let scrollTimer: NodeJS.Timeout | null = null;
+      let ticking = false;
       const SCROLL_THRESHOLD = 100;
-      const SCROLL_TIMEOUT = 150;
 
-      function updateHeaderVisibility(scrollTop: number, force = false) {
-        if (!header) return;
+      // 使用 requestAnimationFrame 优化滚动性能
+      function updateScroll() {
+        const scrollTop = window.scrollY;
 
-        // 在顶部时始终显示
-        if (scrollTop <= 0) {
-          header.style.transform = 'translateY(0)';
-          return;
+        // 更新 header 可见性
+        if (header) {
+          if (scrollTop <= 0) {
+            header.style.transform = 'translateY(0)';
+          } else if (scrollTop > lastScrollTop && scrollTop > SCROLL_THRESHOLD) {
+            header.style.transform = 'translateY(-100%)';
+          } else if (scrollTop < lastScrollTop) {
+            header.style.transform = 'translateY(0)';
+          }
         }
 
-        // 向下滚动时隐藏
-        if (scrollTop > lastScrollTop && scrollTop > SCROLL_THRESHOLD) {
-          header.style.transform = 'translateY(-100%)';
-        }
-        // 向上滚动时显示
-        else if (scrollTop < lastScrollTop || force) {
-          header.style.transform = 'translateY(0)';
+        // 更新回到顶部按钮可见性
+        if (backToTop) {
+          if (scrollTop > SCROLL_THRESHOLD) {
+            backToTop.classList.remove('opacity-0', 'invisible');
+          } else {
+            backToTop.classList.add('opacity-0', 'invisible');
+          }
         }
 
         lastScrollTop = scrollTop;
+        ticking = false;
       }
 
-      function updateBackToTopVisibility(scrollTop: number) {
-        if (!backToTop) return;
-
-        if (scrollTop > SCROLL_THRESHOLD) {
-          backToTop.classList.remove('opacity-0', 'invisible');
-        } else {
-          backToTop.classList.add('opacity-0', 'invisible');
-        }
-      }
-
-      // 节流函数
-      function throttleScroll(callback: () => void) {
-        if (scrollTimer) return;
-        
-        scrollTimer = setTimeout(() => {
-          callback();
-          scrollTimer = null;
-        }, SCROLL_TIMEOUT);
-      }
-
-      // 监听滚动事件
+      // 使用 requestAnimationFrame 处理滚动事件
       window.addEventListener('scroll', () => {
-        const scrollTop = document.documentElement.scrollTop;
-        
-        throttleScroll(() => {
-          updateHeaderVisibility(scrollTop);
-          updateBackToTopVisibility(scrollTop);
-        });
+        if (!ticking) {
+          requestAnimationFrame(updateScroll);
+          ticking = true;
+        }
       }, { passive: true });
 
       // 回到顶部功能
@@ -182,26 +206,8 @@ const {
             top: 0,
             behavior: 'smooth'
           });
-          // 强制显示 header
-          updateHeaderVisibility(0, true);
         });
       }
-
-      // 监听滚动结束
-      let scrollEndTimer: NodeJS.Timeout | null = null;
-      window.addEventListener('scroll', () => {
-        if (scrollEndTimer) {
-          clearTimeout(scrollEndTimer);
-        }
-        
-        scrollEndTimer = setTimeout(() => {
-          const scrollTop = document.documentElement.scrollTop;
-          // 如果用户停止滚动且方向是向上，显示 header
-          if (scrollTop < lastScrollTop) {
-            updateHeaderVisibility(scrollTop, true);
-          }
-        }, 150);
-      }, { passive: true });
     </script>
 
     <style is:global>
@@ -212,6 +218,42 @@ const {
       /* 平滑滚动 */
       html {
         scroll-behavior: smooth;
+      }
+
+      /* 自定义滚动条样式 */
+      ::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.5);
+        border: 3px solid transparent;
+        background-clip: padding-box;
+        border-radius: 6px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(156, 163, 175, 0.7);
+        border: 3px solid transparent;
+        background-clip: padding-box;
+      }
+
+      /* 暗色模式滚动条 */
+      .dark ::-webkit-scrollbar-thumb {
+        background-color: rgba(75, 85, 99, 0.5);
+        border: 3px solid transparent;
+        background-clip: padding-box;
+      }
+
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(75, 85, 99, 0.7);
+        border: 3px solid transparent;
+        background-clip: padding-box;
       }
 
       /* 打印样式 */
@@ -233,16 +275,30 @@ const {
     <style>
       #theme-circle {
         will-change: clip-path;
+        pointer-events: none;
       }
 
       .dark #theme-circle {
         clip-path: circle(150% at 50% 50%);
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        #theme-circle {
-          transition: none !important;
-        }
+      /* 背景渐变效果 */
+      .dark .bg-gradient-to-br.from-gray-50 {
+        opacity: 0;
+      }
+
+      /* 亮色模式渐变颜色 */
+      .bg-gradient-light {
+        background: radial-gradient(circle at 50% 0%, rgba(255,100,255,0.15), transparent 50%),
+                    radial-gradient(circle at 0% 50%, rgba(100,255,100,0.15), transparent 50%),
+                    radial-gradient(circle at 100% 50%, rgba(100,100,255,0.15), transparent 50%);
+      }
+
+      /* 暗色模式渐变颜色 */
+      .bg-gradient-dark {
+        background: radial-gradient(circle at 50% 0%, rgba(255,50,50,0.12), transparent 50%),
+                    radial-gradient(circle at 0% 50%, rgba(50,255,50,0.12), transparent 50%),
+                    radial-gradient(circle at 100% 50%, rgba(50,50,255,0.12), transparent 50%);
       }
     </style>
   </body>
