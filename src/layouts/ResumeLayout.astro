@@ -28,7 +28,15 @@ const {
     <meta name="twitter:card" content="summary_large_image" />
     <ViewTransitions />
   </head>
-  <body class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <body class="min-h-screen">
+    <!-- 背景层 -->
+    <div class="fixed inset-0 -z-10">
+      <!-- 亮色背景 -->
+      <div class="absolute inset-0 bg-gray-50"></div>
+      <!-- 暗色背景和动画 -->
+      <div id="theme-circle" class="absolute inset-0 bg-gray-900 transition-[clip-path] duration-700 ease-in-out dark:clip-path-circle-full"></div>
+    </div>
+
     <div class="relative">
       <!-- 顶部导航栏 -->
       <nav id="header" class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 no-print transition-transform duration-300">
@@ -78,25 +86,69 @@ const {
     <script>
       // 主题切换
       const themeToggle = document.getElementById('theme-toggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
+      const themeCircle = document.getElementById('theme-circle');
+      let isAnimating = false;
+
+      if (themeToggle && themeCircle) {
+        themeToggle.addEventListener('click', (e) => {
+          if (isAnimating) return;
+          isAnimating = true;
+
+          // 获取按钮位置
+          const rect = themeToggle.getBoundingClientRect();
+          const buttonCenterX = rect.left + rect.width / 2;
+          const buttonCenterY = rect.top + rect.height / 2;
+
+          // 计算相对位置（相对于窗口）
+          const x = (buttonCenterX / window.innerWidth) * 100;
+          const y = (buttonCenterY / window.innerHeight) * 100;
+
+          // 设置动画起点
+          themeCircle.style.clipPath = `circle(0% at ${x}% ${y}%)`;
+
+          // 触发重排
+          themeCircle.offsetHeight;
+
+          // 切换主题类
           document.documentElement.classList.toggle('dark');
           localStorage.setItem(
             'theme',
             document.documentElement.classList.contains('dark') ? 'dark' : 'light'
           );
+
+          // 开始动画
+          if (document.documentElement.classList.contains('dark')) {
+            themeCircle.style.clipPath = `circle(150% at ${x}% ${y}%)`;
+          } else {
+            themeCircle.style.clipPath = `circle(0% at ${x}% ${y}%)`;
+          }
+
+          // 动画结束后重置状态
+          setTimeout(() => {
+            isAnimating = false;
+          }, 700);
         });
       }
 
-      // 初始化主题为暗色
-      if (!localStorage.theme) {
-        localStorage.theme = 'dark';
-        document.documentElement.classList.add('dark');
-      } else if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      // 初始化主题
+      const initTheme = () => {
+        const isDark = localStorage.theme === 'dark' || 
+          (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          if (themeCircle) {
+            themeCircle.style.clipPath = 'circle(150% at 50% 50%)';
+          }
+        } else {
+          document.documentElement.classList.remove('dark');
+          if (themeCircle) {
+            themeCircle.style.clipPath = 'circle(0% at 50% 50%)';
+          }
+        }
+      };
+
+      initTheme();
 
       // 滚动行为控制
       const header = document.getElementById('header');
@@ -208,6 +260,22 @@ const {
 
         @page {
           margin: 1.5cm;
+        }
+      }
+    </style>
+
+    <style>
+      #theme-circle {
+        will-change: clip-path;
+      }
+
+      .dark #theme-circle {
+        clip-path: circle(150% at 50% 50%);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #theme-circle {
+          transition: none !important;
         }
       }
     </style>
