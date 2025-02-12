@@ -9,7 +9,7 @@ basics:
   profiles:
     - network: "GitHub"
       url: "https://github.com/Maxiaochuan123"
-      username: "Maxiaochuan123"
+      username: "github.Maxiaochuan"
 
 education:
   - institution: "西南科技大学"

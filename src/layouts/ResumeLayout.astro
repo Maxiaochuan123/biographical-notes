@@ -90,43 +90,9 @@ const {
       let isAnimating = false;
 
       if (themeToggle && themeCircle) {
-        themeToggle.addEventListener('click', (e) => {
-          if (isAnimating) return;
-          isAnimating = true;
-
-          // 获取按钮位置
-          const rect = themeToggle.getBoundingClientRect();
-          const buttonCenterX = rect.left + rect.width / 2;
-          const buttonCenterY = rect.top + rect.height / 2;
-
-          // 计算相对位置（相对于窗口）
-          const x = (buttonCenterX / window.innerWidth) * 100;
-          const y = (buttonCenterY / window.innerHeight) * 100;
-
-          // 设置动画起点
-          themeCircle.style.clipPath = `circle(0% at ${x}% ${y}%)`;
-
-          // 触发重排
-          themeCircle.offsetHeight;
-
-          // 切换主题类
-          document.documentElement.classList.toggle('dark');
-          localStorage.setItem(
-            'theme',
-            document.documentElement.classList.contains('dark') ? 'dark' : 'light'
-          );
-
-          // 开始动画
-          if (document.documentElement.classList.contains('dark')) {
-            themeCircle.style.clipPath = `circle(150% at ${x}% ${y}%)`;
-          } else {
-            themeCircle.style.clipPath = `circle(0% at ${x}% ${y}%)`;
-          }
-
-          // 动画结束后重置状态
-          setTimeout(() => {
-            isAnimating = false;
-          }, 700);
+        themeToggle.addEventListener('click', () => {
+          const isDark = document.documentElement.classList.toggle('dark');
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
       }
 
@@ -154,11 +120,11 @@ const {
       const header = document.getElementById('header');
       const backToTop = document.getElementById('back-to-top');
       let lastScrollTop = 0;
-      let scrollTimer = null;
+      let scrollTimer: NodeJS.Timeout | null = null;
       const SCROLL_THRESHOLD = 100;
       const SCROLL_TIMEOUT = 150;
 
-      function updateHeaderVisibility(scrollTop, force = false) {
+      function updateHeaderVisibility(scrollTop: number, force = false) {
         if (!header) return;
 
         // 在顶部时始终显示
@@ -179,7 +145,7 @@ const {
         lastScrollTop = scrollTop;
       }
 
-      function updateBackToTopVisibility(scrollTop) {
+      function updateBackToTopVisibility(scrollTop: number) {
         if (!backToTop) return;
 
         if (scrollTop > SCROLL_THRESHOLD) {
@@ -190,7 +156,7 @@ const {
       }
 
       // 节流函数
-      function throttleScroll(callback) {
+      function throttleScroll(callback: () => void) {
         if (scrollTimer) return;
         
         scrollTimer = setTimeout(() => {
@@ -201,7 +167,7 @@ const {
 
       // 监听滚动事件
       window.addEventListener('scroll', () => {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollTop = document.documentElement.scrollTop;
         
         throttleScroll(() => {
           updateHeaderVisibility(scrollTop);
@@ -222,14 +188,14 @@ const {
       }
 
       // 监听滚动结束
-      let scrollEndTimer = null;
+      let scrollEndTimer: NodeJS.Timeout | null = null;
       window.addEventListener('scroll', () => {
         if (scrollEndTimer) {
           clearTimeout(scrollEndTimer);
         }
         
         scrollEndTimer = setTimeout(() => {
-          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const scrollTop = document.documentElement.scrollTop;
           // 如果用户停止滚动且方向是向上，显示 header
           if (scrollTop < lastScrollTop) {
             updateHeaderVisibility(scrollTop, true);
