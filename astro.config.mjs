@@ -8,18 +8,14 @@ import react from '@astrojs/react';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://your-resume.com',
+  server: {
+    host: true, // 启用所有网络接口访问
+    port: 3321  // 指定端口
+  },
   integrations: [
-    mdx({
-      optimizeDeps: {
-        include: ['react', 'react-dom'],
-      },
-      remarkPlugins: [],
-      rehypePlugins: [],
-    }),
+    mdx(),
     sitemap(),
     tailwind({
-      // 启用 JIT 模式
-      jit: true,
       // 配置 Tailwind 编译器
       applyBaseStyles: false,
     }),
@@ -49,12 +45,6 @@ export default defineConfig({
       exclude: ['@astrojs/image', 'sharp']
     }
   },
-  // 开启类型检查
-  typescript: {
-    strict: true,
-    checkJs: true,
-  },
-  // 输出配置
   output: 'static',
   build: {
     inlineStylesheets: 'auto',

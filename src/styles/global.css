@@ -8,8 +8,22 @@
   }
 
   body {
-    @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100;
     @apply min-h-screen;
+    background: 
+      radial-gradient(circle at 50% 0%, rgba(255, 0, 0, 0.1), transparent 40%),
+      radial-gradient(circle at 0% 50%, rgba(0, 255, 0, 0.1), transparent 40%),
+      radial-gradient(circle at 100% 50%, rgba(0, 0, 255, 0.1), transparent 40%),
+      linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    background: 
+      radial-gradient(circle at 50% 0%, rgba(255, 0, 0, 0.05), transparent 40%),
+      radial-gradient(circle at 0% 50%, rgba(0, 255, 0, 0.05), transparent 40%),
+      radial-gradient(circle at 100% 50%, rgba(0, 0, 255, 0.05), transparent 40%),
+      linear-gradient(to bottom right, #1e293b, #0f172a);
+    background-attachment: fixed;
   }
 }
 
@@ -27,8 +41,22 @@
   }
 
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 animate-slide-in;
+    @apply bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-lg p-6;
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    transition: all 0.2s ease;
   }
+
+  /* .card:hover {
+    @apply bg-white/70 dark:bg-gray-800/70;
+    transform: translateY(-2px);
+    box-shadow: 
+      0 8px 12px -1px rgba(0, 0, 0, 0.15),
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  } */
 }
 
 /* 打印样式优化 */
@@ -43,8 +71,14 @@
   }
 
   body {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    background: none !important;
+  }
+
+  .card {
+    background: white !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    transform: none !important;
   }
 
   .no-print {

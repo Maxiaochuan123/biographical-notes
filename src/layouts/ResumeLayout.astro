@@ -16,7 +16,7 @@ const {
 ---
 
 <!DOCTYPE html>
-<html lang="zh" class="scroll-smooth">
+<html lang="zh" class="scroll-smooth dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -31,13 +31,13 @@ const {
   <body class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div class="relative">
       <!-- 顶部导航栏 -->
-      <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 no-print">
-        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+      <nav id="header" class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 no-print transition-transform duration-300">
+        <div class="container mx-auto px-4 h-12 flex items-center justify-between">
           <div class="flex items-center space-x-4">
             <button class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
               onclick="window.print()">
               <span class="sr-only">打印</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
               </svg>
             </button>
@@ -47,7 +47,7 @@ const {
             <button class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
               id="theme-toggle">
               <span class="sr-only">切换主题</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
               </svg>
             </button>
@@ -55,8 +55,16 @@ const {
         </div>
       </nav>
 
+      <!-- 回到顶部按钮 -->
+      <button id="back-to-top" class="fixed bottom-6 right-6 p-2 bg-gray-800/80 dark:bg-gray-700/80 text-white rounded-full shadow-lg backdrop-blur-sm opacity-0 invisible transition-all duration-300 hover:bg-gray-700 dark:hover:bg-gray-600 z-50">
+        <span class="sr-only">回到顶部</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </button>
+
       <!-- 主要内容 -->
-      <main class="container mx-auto px-4 py-20 print:py-0">
+      <main class="container mx-auto px-4 py-16 print:py-0">
         <slot />
       </main>
     </div>
@@ -74,12 +82,102 @@ const {
         });
       }
 
-      // 初始化主题
-      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      // 初始化主题为暗色
+      if (!localStorage.theme) {
+        localStorage.theme = 'dark';
+        document.documentElement.classList.add('dark');
+      } else if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
       }
+
+      // 滚动行为控制
+      const header = document.getElementById('header');
+      const backToTop = document.getElementById('back-to-top');
+      let lastScrollTop = 0;
+      let scrollTimer = null;
+      const SCROLL_THRESHOLD = 100;
+      const SCROLL_TIMEOUT = 150;
+
+      function updateHeaderVisibility(scrollTop, force = false) {
+        if (!header) return;
+
+        // 在顶部时始终显示
+        if (scrollTop <= 0) {
+          header.style.transform = 'translateY(0)';
+          return;
+        }
+
+        // 向下滚动时隐藏
+        if (scrollTop > lastScrollTop && scrollTop > SCROLL_THRESHOLD) {
+          header.style.transform = 'translateY(-100%)';
+        }
+        // 向上滚动时显示
+        else if (scrollTop < lastScrollTop || force) {
+          header.style.transform = 'translateY(0)';
+        }
+
+        lastScrollTop = scrollTop;
+      }
+
+      function updateBackToTopVisibility(scrollTop) {
+        if (!backToTop) return;
+
+        if (scrollTop > SCROLL_THRESHOLD) {
+          backToTop.classList.remove('opacity-0', 'invisible');
+        } else {
+          backToTop.classList.add('opacity-0', 'invisible');
+        }
+      }
+
+      // 节流函数
+      function throttleScroll(callback) {
+        if (scrollTimer) return;
+        
+        scrollTimer = setTimeout(() => {
+          callback();
+          scrollTimer = null;
+        }, SCROLL_TIMEOUT);
+      }
+
+      // 监听滚动事件
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        throttleScroll(() => {
+          updateHeaderVisibility(scrollTop);
+          updateBackToTopVisibility(scrollTop);
+        });
+      }, { passive: true });
+
+      // 回到顶部功能
+      if (backToTop) {
+        backToTop.addEventListener('click', () => {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+          // 强制显示 header
+          updateHeaderVisibility(0, true);
+        });
+      }
+
+      // 监听滚动结束
+      let scrollEndTimer = null;
+      window.addEventListener('scroll', () => {
+        if (scrollEndTimer) {
+          clearTimeout(scrollEndTimer);
+        }
+        
+        scrollEndTimer = setTimeout(() => {
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          // 如果用户停止滚动且方向是向上，显示 header
+          if (scrollTop < lastScrollTop) {
+            updateHeaderVisibility(scrollTop, true);
+          }
+        }, 150);
+      }, { passive: true });
     </script>
 
     <style is:global>
